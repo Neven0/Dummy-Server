@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import main.messages.Emotion;
+import main.messages.Message;
 import main.messages.Text;
 import main.repository.EmotionRepository;
 import main.repository.TextRepository;
@@ -22,19 +23,23 @@ public class MessageController {
 	private TextRepository textRepository;
 	
 	@PostMapping(path="/send_emotion", consumes="application/json")
-	public ResponseEntity<?> MessageInfo(@RequestBody Emotion emotion) {
-		if (emotion.getLenght()<2 || emotion.getLenght()>10 || emotion.hasNumber()) return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+	public ResponseEntity<?> MessageInfo(@RequestBody Message message) {
+		if (message.getLenght()<2 || message.getLenght()>10 || message.hasNumber()) {
+			return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+		}
 		else {
-			emotionRepository.save(emotion);
+			emotionRepository.save(new Emotion(message));
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		}
 	}
 		
 	@PostMapping(path="/send_text", consumes="application/json")
-	public ResponseEntity<?> TextInfo(@RequestBody Text text) {
-		if (text.getLenght()<1 || text.getLenght()>160) return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+	public ResponseEntity<?> TextInfo(@RequestBody Message message) {
+		if (message.getLenght()<1 || message.getLenght()>160) {
+			return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+		}
 		else {
-			textRepository.save(text);
+			textRepository.save(new Text(message));
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		}
 	}

@@ -16,21 +16,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import main.controllers.MessageController;
 import main.messages.Emotion;
-import main.messages.Text;
+import main.messages.Message;
 import main.repository.EmotionRepository;
-import main.repository.TextRepository;
 
 @RunWith(SpringRunner.class)
-public class MessageControllerTest {
-	
-	private MockMvc mockMvc;
+public class Send_EmotionTest {
+
+private MockMvc mockMvc;
 	
 	@InjectMocks
 	private MessageController messageController;
 	@Mock
 	private EmotionRepository emotionRepo;
-	@Mock
-	private TextRepository textRepo;
 	
 	@Before
 	public void setUp() {
@@ -39,8 +36,8 @@ public class MessageControllerTest {
 	
 	@Test
 	public void Emotion_good_payload() throws Exception{
-		Emotion emotion=new Emotion();
-		emotion.setPayload(":)");
+		Message message= new Message(":)");
+		Emotion emotion=new Emotion(message);
 		mockMvc.perform(MockMvcRequestBuilders.post("/send_emotion")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(emotion)))
@@ -49,8 +46,8 @@ public class MessageControllerTest {
 	
 	@Test
 	public void Emotion_bad_payload_under_2() throws Exception{
-		Emotion emotion=new Emotion();
-		emotion.setPayload("T");
+		Message message= new Message("T");
+		Emotion emotion=new Emotion(message);
 		mockMvc.perform(MockMvcRequestBuilders.post("/send_emotion")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(emotion)))
@@ -59,8 +56,8 @@ public class MessageControllerTest {
 	
 	@Test
 	public void Emotion_bad_payload_above_10() throws Exception{
-		Emotion emotion=new Emotion();
-		emotion.setPayload("Testing testing testing");
+		Message message= new Message("Testing testing testing");
+		Emotion emotion=new Emotion(message);
 		mockMvc.perform(MockMvcRequestBuilders.post("/send_emotion")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(emotion)))
@@ -69,46 +66,13 @@ public class MessageControllerTest {
 	
 	@Test
 	public void Emotion_bad_payload_with_number() throws Exception{
-		Emotion emotion=new Emotion();
-		emotion.setPayload(":)1");
+		Message message= new Message(":)1");
+		Emotion emotion=new Emotion(message);
 		mockMvc.perform(MockMvcRequestBuilders.post("/send_emotion")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(emotion)))
 				.andExpect(MockMvcResultMatchers.status().isPreconditionFailed());
 	}
-	
-	@Test
-	public void Text_good_payload() throws Exception{
-		Text text=new Text();
-		text.setPayload("Testing");
-		mockMvc.perform(MockMvcRequestBuilders.post("/send_text")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(text)))
-				.andExpect(MockMvcResultMatchers.status().isCreated());
-	}
-	
-	@Test
-	public void Text_bad_payload_under_1() throws Exception{
-		Text text=new Text();
-		text.setPayload("");
-		mockMvc.perform(MockMvcRequestBuilders.post("/send_text")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(text)))
-				.andExpect(MockMvcResultMatchers.status().isPreconditionFailed());
-	}
-	
-	@Test
-	public void Text_bad_payload_over_160() throws Exception{
-		Text text=new Text();
-		text.setPayload("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-				+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA"); //161 A
-		mockMvc.perform(MockMvcRequestBuilders.post("/send_text")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(asJsonString(text)))
-				.andExpect(MockMvcResultMatchers.status().isPreconditionFailed());
-	}
-
 	
 	public static String asJsonString(Object obj) {
 		try {

@@ -8,33 +8,39 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+import org.springframework.data.annotation.CreatedDate;
 
+import main.messages.MessageType;
+import main.messages.Message;
 
 @Entity
 @Table(name="messages")
-public class Text extends Message {
+public class Text implements MessageInterface {
 	
-	public Text() {
-		type="text";
+	private long id;
+	@CreatedDate
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date date;
+	private final MessageType type=MessageType.TEXT;
+	private Message message;
+	
+	public Text(Message message) {
 		date= new Date();
+		this.message=message;
 		}
 
 	@Override
 	public void setPayload(String payload) {
-		this.payload=payload;
+		message.setPayload(payload);
 	}
+	
 	@Column(name="payload", nullable=false)
 	@Override
 	public String getPayload() {
-		return payload;
-	}
-
-	@Override
-	@Transient
-	public int getLenght() {
-		return payload.length();
+		return message.getPayload();
 	}
 
 	@Id
@@ -46,12 +52,10 @@ public class Text extends Message {
 	@Column(name="type", nullable=false)
 	@Override
 	public String getType() {
-		return type;
+		return type.getType();
 	}
 	@Override
-	public void setType(String type) {
-		this.type=type;
-	}
+	public void setType(MessageType type) {}
 
 	@Override
 	public void setId(long id) {
